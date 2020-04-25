@@ -106,9 +106,8 @@ exports.deleteLocation = async (req, res, next)=> {
     try {
         const profile = await Profile.findOne({ user: req.user.id })
 
-        const removeIndex = profile.location.map(item=>item.id).indexOf(req.params.id)
-        console.log(removeIndex)
-        if(removeIndex) return res.status(400).json({ errors: [{msg: 'location id not found'}] })
+        const removeIndex = profile.location.map(item=>item._id).indexOf(req.params.id)
+        if(!removeIndex) return res.status(400).json({ errors: [{msg: 'location id not found'}] })
         
         profile.location.splice(removeIndex, 1)
 
@@ -154,9 +153,8 @@ exports.deleteCar = async (req, res, next)=> {
     try {
         const profile = await Profile.findOne({ user: req.user.id })
 
-        const removeIndex = profile.car.map(item=>item.id).indexOf(req.params.id)
-        if(removeIndex) return res.status(400).json({ errors: [{msg: 'car id not found'}] })
-        
+        const removeIndex = profile.car.map(item=>item._id).indexOf(req.params.id)
+        if(!removeIndex) return res.status(400).json({ errors: [{msg: 'car id not found'}] })
         profile.car.splice(removeIndex, 1)
 
         await profile.save()
