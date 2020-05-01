@@ -15,8 +15,13 @@ const app = express()
 // Connect Database
 connectDB()
 
+
+app.use(helmet());
+app.use(compression());
+
 // Init Middleware
 app.use(cors())
+
 //body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
