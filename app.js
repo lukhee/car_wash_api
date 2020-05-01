@@ -27,10 +27,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Defined Routes
+app.use('/api/package', packageRoute)
 app.use('/api/user', userRoute)
 app.use('/api/auth', authRoute)
 app.use('/api/profile', profileRoute)
-app.use('/api/package', packageRoute)
 app.use('/api/admin', adminRoute)
 
 // Page Not-found Route
