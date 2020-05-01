@@ -1,0 +1,4 @@
+{
+    "mongoURI": "mongodb+srv://uberCarWash:Balogun007.@ubercarwash-inzrb.mongodb.net/test?retryWrites=true&w=majority",
+    "jwtSecret": "mysecret"
+}
