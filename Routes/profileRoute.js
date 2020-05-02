@@ -64,4 +64,10 @@ router.post('/request_wash', [[auth],
 router.delete('/request_cancel/:id', auth, profileController.requestCancelled)
 
 
+// @route  Post api/profile/payment
+// @access public
+// @desc   online payment using stript
+router.post('/payment', profileController.payment)
+
+
 module.exports = router

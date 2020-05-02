@@ -1,5 +1,7 @@
 const Profile = require('../Models/ProfileSchema')
 const { validationResult } = require('express-validator')
+const config = require('config')
+const stripe = require("stripe")(config.get('stripe_secrete_key'));
 
 // @desc  View Profile
 exports.getMyProfile = async (req, res, next)=> {
@@ -206,6 +208,7 @@ exports.requestWash = async (req, res, next) => {
     }
 }
 
+// @desc cancell request
 exports.requestCancelled = async (req, res, next) => {
     try {
         const profile = await Profile.findOne({ user: req.user.id })
@@ -229,6 +232,32 @@ exports.requestCancelled = async (req, res, next) => {
         console.log(error)
         res.status(500).send('Server Down')
     }
+}
 
+// @Payment using stripe
+exports.payment = async (req, res, next) => {
+    const stripeChargeCallback = (stripeErr, stripeRes) => {
+        if (stripeErr) {
+            res.status(500).send({ error: stripeErr });
+        } else {
+            res.status(200).send({ success: stripeRes });
+        }
+    };
+
+    const body = {
+        source: req.body.token.id,
+        amount: req.body.amount,
+        currency: "usd"
+    };
+    
+    stripe.charges.create(body, stripeChargeCallback());
+
+    try {
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Server Down')
+    }
 
 }
+
