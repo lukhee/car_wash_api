@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
-const profileController = require('../controllers/profileCotroller')
+const profileController = require('../Controllers/profileCotroller')
 const { check } = require('express-validator')
 
 // @route  Get api/profile

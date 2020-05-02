@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 const { check } = require('express-validator')
-const adminController = require('../controllers/adminController')
+const adminController = require('../Controllers/adminController')
 
 // @route Get api/admin
 // @desc get all request
