@@ -25,7 +25,7 @@ exports.UpdateProfile = async (req, res, next)=> {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { 
+    const {
         home,
         work,
         street,
@@ -78,7 +78,7 @@ exports.addLocation = async (req, res, next)=> {
 
     const {
         street,
-        state, 
+        state,
         country
     } = req.body
 
@@ -110,7 +110,7 @@ exports.deleteLocation = async (req, res, next)=> {
 
         const removeIndex = profile.location.map(item=>item._id).indexOf(req.params.id)
         if(!removeIndex) return res.status(400).json({ errors: [{msg: 'location id not found'}] })
-        
+
         profile.location.splice(removeIndex, 1)
 
         await profile.save()
@@ -190,11 +190,11 @@ exports.requestWash = async (req, res, next) => {
 
     try {
         const profile = await Profile.findOne({ user: req.user.id })
-        // find car properties 
+        // find car properties
         let carObj = profile.car.find(ele=>  ele._id.toString() === carId)
         requestObj.car = carObj
 
-        // find location properties 
+        // find location properties
         let locationObj = profile.location.find(ele=>  ele._id.toString() === locationId)
         requestObj.location = locationObj
 
@@ -215,19 +215,19 @@ exports.requestCancelled = async (req, res, next) => {
         // find the object that needs update and check it status
         let cloneRequest = profile.request.find(ele => ele._id.toString() === req.params.id )
         if(!cloneRequest || cloneRequest.status !== 'pending') return res.status(400).json({ errors: [{msg: 'update cant be done'}] })
-        
+
         const updatedField  = profile.request.map(ele => {
             if(ele._id.toString() === req.params.id){
                 ele.status = "cancelled"
                 }
                 return ele
             })
-        profile.request = updatedField 
+        profile.request = updatedField
         await profile.save()
         res.json(profile.request[0])
         // update the object status
 
-        // insert  back and save 
+        // insert  back and save
     } catch (error) {
         console.log(error)
         res.status(500).send('Server Down')
@@ -249,11 +249,11 @@ exports.payment = async (req, res, next) => {
         amount: req.body.amount,
         currency: "usd"
     };
-    
+
     stripe.charges.create(body, stripeChargeCallback());
 
     try {
-        
+
     } catch (error) {
         console.log(error)
         res.status(500).send('Server Down')

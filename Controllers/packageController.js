@@ -25,16 +25,15 @@ exports.createPackage = async (req, res, next)=> {
         type,
         price,
         description
-    } = req.body  
+    } = req.body
 
     // build package/add_on object
     const packageField = { user: req.user.id, name, type, price, description }
     try {
         // check if name is created
         let checkIfExist = await Package.findOne({name : name})
-        console.log(checkIfExist === null)
         if(checkIfExist != null) return res.status(401).json({errors: [{msg: "name already occured"}]})
-        
+
         // create new package
         const package = new Package(packageField)
         await package.save()
@@ -90,4 +89,4 @@ exports.deletePackage = async (req, res, next)=> {
         console.log(error)
         res.status(500).send('Server Down')
     }
-} 
+}

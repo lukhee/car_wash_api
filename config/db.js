@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const config = require('config')
 const db = config.get('mongoURI')
+const localDB = config.get('localURL')
 const User = require('../Models/UserSchema')
 const bcrypt = require('bcrypt')
 
@@ -13,15 +14,14 @@ const userObj = {
 
 const connectDB = async ()=> {
     try {
-        await mongoose.connect(db, { 
-            useNewUrlParser: true, 
+        await mongoose.connect(db, {
+            useNewUrlParser: true,
             useUnifiedTopology: true,
             useFindAndModify: false
         });
 
         let user = await User.findOne({ isAdmin: true })
         if(!user){
-            console.log(" i am here")
             const salt = await bcrypt.genSalt(10)
             userObj.password = await bcrypt.hash("password", salt)
             user = new User(userObj)
