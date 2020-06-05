@@ -5,17 +5,17 @@ const stripe = require("stripe")(config.get('stripe_secrete_key'));
 
 // @desc  View Profile
 exports.getMyProfile = async (req, res, next)=> {
-try {
-    const profile = await Profile.findOne({user: req.user.id})
-        .populate({
-            path: "user",
-            select: ['-password', '-createdAt', '-updatedAt']
-        })
-    res.json(profile)
-} catch (error) {
-    console.log(error)
-    res.status(500).send('Server Down')
-}
+    try {
+        const profile = await Profile.findOne({user: req.user.id})
+            .populate({
+                path: "user",
+                select: ['-password', '-createdAt', '-updatedAt']
+            })
+        res.json(profile)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Server Down')
+    }
 }
 
 // @desc  Create / Update profile
@@ -180,7 +180,8 @@ exports.requestWash = async (req, res, next) => {
         date,
         carId,
         locationId,
-        totalCost
+        totalCost,
+        token,
     } = req.body
 
     // create requestObject model
@@ -188,25 +189,37 @@ exports.requestWash = async (req, res, next) => {
         requestObj.payment = {}
         requestObj.payment.totalCost = totalCost
 
-    try {
-        const profile = await Profile.findOne({ user: req.user.id })
-        // find car properties
-        let carObj = profile.car.find(ele=>  ele._id.toString() === carId)
-        requestObj.car = carObj
+    // create paypal model
+    const body = {
+        source: token.id,
+        amount: totalCost,
+        currency: "usd"
+    };
 
-        // find location properties
-        let locationObj = profile.location.find(ele=>  ele._id.toString() === locationId)
-        requestObj.location = locationObj
+    stripe.charges.create(body, stripeChargeCallback());
 
-        profile.request.unshift(requestObj)
+    const stripeChargeCallback = async (stripeErr, stripeRes) => {
+        if (stripeErr) return res.status(500).send({ error: stripeErr });
+        try {
+                const profile = await Profile.findOne({ user: req.user.id })
+                // find car properties
+                let carObj = profile.car.find(ele=>  ele._id.toString() === carId)
+                requestObj.car = carObj
 
-        await profile.save()
-        res.json(profile)
-    } catch (error) {
-        console.log(error)
-        res.status(500).send('Server Down')
+                // find location properties
+                let locationObj = profile.location.find(ele=>  ele._id.toString() === locationId)
+                requestObj.location = locationObj
+
+                profile.request.unshift(requestObj)
+
+                await profile.save()
+                res.json(profile)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send('Server Down')
+        }
     }
-}
+};
 
 // @desc cancell request
 exports.requestCancelled = async (req, res, next) => {
@@ -224,7 +237,7 @@ exports.requestCancelled = async (req, res, next) => {
             })
         profile.request = updatedField
         await profile.save()
-        res.json(profile.request[0])
+        res.json(profile)
         // update the object status
 
         // insert  back and save
@@ -236,28 +249,10 @@ exports.requestCancelled = async (req, res, next) => {
 
 // @Payment using stripe
 exports.payment = async (req, res, next) => {
-    const stripeChargeCallback = (stripeErr, stripeRes) => {
-        if (stripeErr) {
-            res.status(500).send({ error: stripeErr });
-        } else {
-            res.status(200).send({ success: stripeRes });
-        }
-    };
+    
 
-    const body = {
-        source: req.body.token.id,
-        amount: req.body.amount,
-        currency: "usd"
-    };
+    
 
-    stripe.charges.create(body, stripeChargeCallback());
-
-    try {
-
-    } catch (error) {
-        console.log(error)
-        res.status(500).send('Server Down')
-    }
 
 }
 
