@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator')
 const gravatar = require('gravatar')
 const User = require('../Models/UserSchema')
+const Profile = require('../Models/ProfileSchema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const config = require("config")
@@ -33,24 +34,42 @@ exports.createUser = async  (req, res, next)=>{
 
         user.password = await bcrypt.hash(password, salt)
 
-        await user.save() 
+        await user.save()
 
-        const payload = { 
+        const payload = {
             user: {
                 id: user._id
             }
         }
 
         jwt.sign(
-            payload, 
+            payload,
             config.get('jwtSecret'),
-            {expiresIn: 360000}, 
+            {expiresIn: 360000},
             (err, token)=>{
                 if(err) throw err;
                 res.json({ token })
-            } )
+            })
     } catch(err){
         console.error(err.message)
+        res.status(500).send("server error")
+    }
+}
+
+exports.updateUser = async (req, res, next)=> {
+    try {
+        const profile = await Profile.findOne({user: req.user.id})
+        const user = await User.findById(req.user.id)
+
+        user.name = req.body.name
+        profile.home = req.body.home
+
+        await user.save()
+        await profile.save()
+
+        res.json(profile)
+    } catch (error) {
+        console.error(error)
         res.status(500).send("server error")
     }
 }

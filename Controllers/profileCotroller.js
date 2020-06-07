@@ -1,4 +1,5 @@
 const Profile = require('../Models/ProfileSchema')
+const User = require('../Models/UserSchema')
 const { validationResult } = require('express-validator')
 const config = require('config')
 const stripe = require("stripe")(config.get('stripe_secrete_key'));
@@ -196,11 +197,11 @@ exports.requestWash = async (req, res, next) => {
         currency: "usd"
     };
 
-    stripe.charges.create(body, stripeChargeCallback());
-
     const stripeChargeCallback = async (stripeErr, stripeRes) => {
+        console.log("i am here")
         if (stripeErr) return res.status(500).send({ error: stripeErr });
         try {
+            console.log("payment success")
                 const profile = await Profile.findOne({ user: req.user.id })
                 // find car properties
                 let carObj = profile.car.find(ele=>  ele._id.toString() === carId)
@@ -219,6 +220,8 @@ exports.requestWash = async (req, res, next) => {
             res.status(500).send('Server Down')
         }
     }
+
+    stripe.charges.create(body, stripeChargeCallback());
 };
 
 // @desc cancell request
@@ -247,12 +250,15 @@ exports.requestCancelled = async (req, res, next) => {
     }
 }
 
-// @Payment using stripe
-exports.payment = async (req, res, next) => {
-    
-
-    
-
-
+// @Desc delete account
+exports.deleteAccount = async (req, res, next) => {
+    try {
+        const profile = await Profile.findOneAndDelete({user: req.user.id})
+        const user = await User.findByIdAndDelete(req.user.id)
+        res.json({msg: "user deleted succeccfully"})
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Server Down')
+    }
 }
 

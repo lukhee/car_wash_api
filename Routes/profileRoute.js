@@ -50,7 +50,7 @@ router.delete('/car/:id', auth, profileController.deleteCar)
 
 // @route  Post api/profile/request
 // @access Pirvate
-// @desc   Delete user car
+// @desc   Request for wash
 router.post('/request_wash', [[auth],
     check('package', 'Package is required').not().isEmpty(),
     check('date', 'Date is required').not().isEmpty(),
@@ -67,7 +67,6 @@ router.delete('/request_cancel/:id', auth, profileController.requestCancelled)
 // @route  Post api/profile/payment
 // @access public
 // @desc   online payment using stript
-router.post('/payment', profileController.payment)
-
+router.delete('/delete_account', auth, profileController.deleteAccount)
 
 module.exports = router
